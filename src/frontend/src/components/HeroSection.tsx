@@ -70,12 +70,17 @@ export default function HeroSection({
           <span className="shimmer-text">IPLVERSE</span>
         </h1>
 
-        <p className="animate-fade-up-delay-2 font-display text-xl sm:text-2xl md:text-3xl font-medium text-white/80 mb-4">
+        {/* Tagline */}
+        <p className="animate-fade-up-delay-2 font-display text-xl sm:text-2xl md:text-3xl font-semibold gradient-text mb-3">
+          Where IPL Predictions Meet Data
+        </p>
+
+        <p className="animate-fade-up-delay-2 text-base sm:text-lg text-white/55 mb-3 font-medium tracking-wide">
           IPL Match Prediction Platform
         </p>
 
-        {/* Tagline */}
-        <p className="animate-fade-up-delay-2 flex items-center justify-center gap-2 text-sm sm:text-base text-white/50 mb-10">
+        {/* AI subtitle */}
+        <p className="animate-fade-up-delay-2 flex items-center justify-center gap-2 text-sm sm:text-base text-white/45 mb-10">
           <Clock className="w-4 h-4 text-purple-400" />
           AI-powered predictions, 24 hours before every match
         </p>

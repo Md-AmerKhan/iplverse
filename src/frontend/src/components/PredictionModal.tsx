@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { usePrediction, useUpcomingMatches } from "../hooks/useQueries";
+import { getTeamColors } from "../lib/teamColors";
 
 const FACTOR_ICONS: Record<string, React.ReactNode> = {
   "Recent Team Form": <TrendingUp className="w-4 h-4" />,
@@ -38,16 +39,28 @@ export default function PredictionModal({
   const team1Prob = prediction ? Number(prediction.team1Probability) : 50;
   const team2Prob = prediction ? Number(prediction.team2Probability) : 50;
 
+  const t1Colors = match
+    ? getTeamColors(match.team1)
+    : { primary: "#7c3aed", bg: "", border: "", glow: "" };
+  const t2Colors = match
+    ? getTeamColors(match.team2)
+    : { primary: "rgba(255,255,255,0.15)", bg: "", border: "", glow: "" };
+
   const chartData = [
-    { name: match?.team1 ?? "Team 1", value: team1Prob, fill: "#7c3aed" },
+    {
+      name: match?.team1 ?? "Team 1",
+      value: team1Prob,
+      fill: t1Colors.primary,
+    },
     {
       name: match?.team2 ?? "Team 2",
       value: team2Prob,
-      fill: "rgba(255,255,255,0.15)",
+      fill: t2Colors.primary,
     },
   ];
 
   const isWinner1 = prediction?.predictedWinner === match?.team1;
+  const winnerColors = isWinner1 ? t1Colors : t2Colors;
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) onClose();
@@ -94,8 +107,9 @@ export default function PredictionModal({
               </p>
               {match ? (
                 <h2 className="font-display text-2xl md:text-3xl font-bold text-white">
-                  {match.team1} <span className="text-white/30">vs</span>{" "}
-                  {match.team2}
+                  <span style={{ color: t1Colors.primary }}>{match.team1}</span>{" "}
+                  <span className="text-white/30">vs</span>{" "}
+                  <span style={{ color: t2Colors.primary }}>{match.team2}</span>
                 </h2>
               ) : (
                 <Skeleton className="h-8 w-64 bg-white/10" />
@@ -123,23 +137,27 @@ export default function PredictionModal({
               <div
                 className="rounded-2xl p-5 text-center relative overflow-hidden"
                 style={{
-                  background:
-                    "linear-gradient(135deg, rgba(124,58,237,0.3), rgba(168,85,247,0.15))",
-                  border: "1px solid rgba(168,85,247,0.3)",
+                  background: `linear-gradient(135deg, ${winnerColors.bg}, rgba(10,10,10,0.5))`,
+                  border: `1px solid ${winnerColors.border}`,
                 }}
               >
                 <div
-                  className="absolute inset-0 opacity-5"
+                  className="absolute inset-0 opacity-10"
                   style={{
-                    background:
-                      "radial-gradient(circle at 50% 50%, #a855f7, transparent 70%)",
+                    background: `radial-gradient(circle at 50% 50%, ${winnerColors.primary}, transparent 70%)`,
                   }}
                 />
                 <Trophy className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
                 <p className="text-xs text-white/50 mb-1 uppercase tracking-widest">
                   Predicted Winner
                 </p>
-                <p className="font-display text-3xl font-bold gradient-text">
+                <p
+                  className="font-display text-3xl font-bold"
+                  style={{
+                    color: winnerColors.primary,
+                    textShadow: `0 0 20px ${winnerColors.glow}`,
+                  }}
+                >
                   {prediction.predictedWinner}
                 </p>
               </div>
@@ -188,13 +206,16 @@ export default function PredictionModal({
                     <div>
                       <div className="flex justify-between items-center mb-1.5">
                         <span
-                          className={`text-sm font-semibold ${
-                            isWinner1 ? "text-purple-300" : "text-white/60"
-                          }`}
+                          className="text-sm font-semibold"
+                          style={{
+                            color: isWinner1
+                              ? t1Colors.primary
+                              : "rgba(255,255,255,0.5)",
+                          }}
                         >
                           {match?.team1}
                           {isWinner1 && (
-                            <span className="ml-2 text-xs text-purple-400">
+                            <span className="ml-2 text-xs opacity-70">
                               &#9733; predicted
                             </span>
                           )}
@@ -209,10 +230,10 @@ export default function PredictionModal({
                           style={{
                             width: `${team1Prob}%`,
                             background: isWinner1
-                              ? "linear-gradient(90deg, #7c3aed, #a855f7)"
-                              : "rgba(255,255,255,0.2)",
+                              ? `linear-gradient(90deg, ${t1Colors.primary}99, ${t1Colors.primary})`
+                              : "rgba(255,255,255,0.15)",
                             boxShadow: isWinner1
-                              ? "0 0 10px rgba(168,85,247,0.5)"
+                              ? `0 0 10px ${t1Colors.glow}`
                               : "none",
                           }}
                         />
@@ -223,13 +244,16 @@ export default function PredictionModal({
                     <div>
                       <div className="flex justify-between items-center mb-1.5">
                         <span
-                          className={`text-sm font-semibold ${
-                            !isWinner1 ? "text-purple-300" : "text-white/60"
-                          }`}
+                          className="text-sm font-semibold"
+                          style={{
+                            color: !isWinner1
+                              ? t2Colors.primary
+                              : "rgba(255,255,255,0.5)",
+                          }}
                         >
                           {match?.team2}
                           {!isWinner1 && (
-                            <span className="ml-2 text-xs text-purple-400">
+                            <span className="ml-2 text-xs opacity-70">
                               &#9733; predicted
                             </span>
                           )}
@@ -244,10 +268,10 @@ export default function PredictionModal({
                           style={{
                             width: `${team2Prob}%`,
                             background: !isWinner1
-                              ? "linear-gradient(90deg, #7c3aed, #a855f7)"
-                              : "rgba(255,255,255,0.2)",
+                              ? `linear-gradient(90deg, ${t2Colors.primary}99, ${t2Colors.primary})`
+                              : "rgba(255,255,255,0.15)",
                             boxShadow: !isWinner1
-                              ? "0 0 10px rgba(168,85,247,0.5)"
+                              ? `0 0 10px ${t2Colors.glow}`
                               : "none",
                           }}
                         />

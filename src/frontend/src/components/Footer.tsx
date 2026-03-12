@@ -1,10 +1,7 @@
-import { Heart, Zap } from "lucide-react";
+import { Zap } from "lucide-react";
 
 export default function Footer() {
   const year = new Date().getFullYear();
-  const hostname =
-    typeof window !== "undefined" ? window.location.hostname : "";
-  const caffeineUrl = `https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(hostname)}`;
 
   return (
     <footer className="relative border-t border-white/5 py-12 px-4 overflow-hidden">
@@ -68,19 +65,9 @@ export default function Footer() {
             </button>
           </div>
 
-          {/* Attribution */}
+          {/* Copyright */}
           <p className="text-xs text-white/25">
-            © {year}. Built with{" "}
-            <Heart className="inline w-3 h-3 text-purple-400 fill-purple-400" />{" "}
-            using{" "}
-            <a
-              href={caffeineUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-purple-400/70 hover:text-purple-400 transition-colors underline underline-offset-2"
-            >
-              caffeine.ai
-            </a>
+            © {year} IPLVERSE. All rights reserved.
           </p>
         </div>
       </div>

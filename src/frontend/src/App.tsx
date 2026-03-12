@@ -1,5 +1,9 @@
 import { Toaster } from "@/components/ui/sonner";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import FeatureCards from "./components/FeatureCards";
 import Footer from "./components/Footer";
@@ -30,13 +34,28 @@ export default function App() {
 function AppContent() {
   const { actor } = useActor();
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
+  const [initialized, setInitialized] = useState(false);
+  const qc = useQueryClient();
 
-  // Initialize backend on mount
+  // Initialize backend on mount, then trigger match queries
   useEffect(() => {
-    if (actor) {
-      actor.initialize().catch(console.error);
-    }
-  }, [actor]);
+    if (!actor) return;
+    let cancelled = false;
+    actor
+      .initialize()
+      .catch(() => {
+        // Already initialized is fine
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setInitialized(true);
+          qc.invalidateQueries({ queryKey: ["upcomingMatches"] });
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [actor, qc]);
 
   const handlePredictClick = () => {
     document.querySelector("#matches")?.scrollIntoView({ behavior: "smooth" });
@@ -59,7 +78,10 @@ function AppContent() {
         {/* Separator gradient */}
         <div className="h-px bg-gradient-to-r from-transparent via-purple-500/20 to-transparent" />
 
-        <UpcomingMatches onPredict={(id) => setSelectedMatchId(id)} />
+        <UpcomingMatches
+          onPredict={(id) => setSelectedMatchId(id)}
+          initialized={initialized}
+        />
 
         {/* Separator gradient */}
         <div className="h-px bg-gradient-to-r from-transparent via-purple-500/20 to-transparent" />

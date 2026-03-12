@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { Match, Prediction, PredictionRecord, Stats } from "../backend.d";
 import { useActor } from "./useActor";
 
-export function useUpcomingMatches() {
+export function useUpcomingMatches(initialized = false) {
   const { actor, isFetching } = useActor();
   return useQuery<Match[]>({
     queryKey: ["upcomingMatches"],
@@ -10,7 +10,7 @@ export function useUpcomingMatches() {
       if (!actor) return [];
       return actor.getUpcomingMatches();
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !isFetching && initialized,
     staleTime: 60_000,
   });
 }

@@ -4,10 +4,14 @@ import MatchCard from "./MatchCard";
 
 interface UpcomingMatchesProps {
   onPredict: (matchId: string) => void;
+  initialized?: boolean;
 }
 
-export default function UpcomingMatches({ onPredict }: UpcomingMatchesProps) {
-  const { data: matches, isLoading, isError } = useUpcomingMatches();
+export default function UpcomingMatches({
+  onPredict,
+  initialized = false,
+}: UpcomingMatchesProps) {
+  const { data: matches, isLoading, isError } = useUpcomingMatches(initialized);
 
   return (
     <section id="matches" className="py-20 px-4">
@@ -28,7 +32,7 @@ export default function UpcomingMatches({ onPredict }: UpcomingMatchesProps) {
           </p>
         </div>
 
-        {isLoading && (
+        {(isLoading || !initialized) && (
           <div
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
             data-ocid="matches.loading_state"
@@ -60,7 +64,7 @@ export default function UpcomingMatches({ onPredict }: UpcomingMatchesProps) {
           </div>
         )}
 
-        {!isLoading && !isError && matches && (
+        {initialized && !isLoading && !isError && matches && (
           <div>
             {matches.length === 0 ? (
               <div
